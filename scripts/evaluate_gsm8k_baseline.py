@@ -22,7 +22,7 @@ def main():
             answers.append(ground_truth)
 
     output_path = base / 'outputs' / 'gsm8k_baseline.jsonl'
-    llm = LLM(model="Qwen/Qwen2.5-Math-1.5B", dtype='half')
+    llm = LLM(model="Qwen/Qwen2.5-Math-1.5B")
     sampling_params = SamplingParams(temperature=1.0, top_p=1.0, max_tokens=1024, stop=['</answer>'], include_stop_str_in_output=True)
     evaluate_vllm(llm, r1_zero_reward_fn, prompts, answers, sampling_params, output_path)
 
