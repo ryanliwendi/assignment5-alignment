@@ -27,7 +27,7 @@ def tokenize_prompt_and_output(
     '''
     combined_str = []
     for i in range(len(prompt_strs)):
-        combined_str.append(prompt_strs[i] + output_strs[i])
+        combined_str.append((prompt_strs[i] + output_strs[i]).strip())
     encoding = tokenizer(combined_str, padding=True, return_tensors='pt')
     input_ids = encoding['input_ids'][:, :-1]
     labels = encoding['input_ids'][:, 1::]
