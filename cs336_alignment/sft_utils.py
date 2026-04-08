@@ -39,7 +39,7 @@ def get_response_log_probs(
     logits = logits - logits.max(dim=-1, keepdim=True).values
     exp_logits = torch.exp(logits)
     normalized_logits = exp_logits / exp_logits.sum(dim=-1, keepdim=True)
-    probs = normalized_logits.gather(-1, labels.unsqueeze(-1))
+    probs = normalized_logits.gather(-1, labels.unsqueeze(-1)).squeeze(-1)
     log_probs = torch.log(probs)
     return_dict = {'log_probs': log_probs}
     if return_token_entropy:
