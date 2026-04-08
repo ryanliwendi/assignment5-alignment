@@ -7,24 +7,6 @@ def tokenize_prompt_and_output(
     output_strs: list[str],
     tokenizer: PreTrainedTokenizer
 ) -> dict[str, torch.Tensor]:
-    '''
-
-    Args:
-        prompt_strs: List of prompt strings.
-        output_strs: List of output strings.
-        tokenizer: Tokenizer to use for tokenization.
-
-    Returns:
-        dict[str, torch.Tensor] Let prompt_and_output_lens be a list containing the lengths of
-        the tokenized prompt and output strings. Then the returned dictionary should have the
-        following keys:
-        input_ids torch.Tensor of shape (batch_size, max(prompt_and_output_lens) - 1):
-        the tokenized prompt and output strings, with the final token sliced off.
-        labels torch.Tensor of shape (batch_size, max(prompt_and_output_lens) - 1):
-        shifted input ids, i.e., the input ids without the first token.
-        response_mask torch.Tensor of shape (batch_size, max(prompt_and_output_lens) -
-        1): a mask on the response tokens in the labels.
-    '''
     combined_str = []
     for i in range(len(prompt_strs)):
         combined_str.append((prompt_strs[i] + output_strs[i]))
