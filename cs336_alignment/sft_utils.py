@@ -48,3 +48,15 @@ def get_response_log_probs(
     return return_dict
 
 
+def masked_normalize(
+    tensor: torch.Tensor,
+    mask: torch.Tensor,
+    normalize_constant: float,
+    dim: int | None=None,
+) -> torch.Tensor:
+    tensor_masked = tensor * mask
+    if dim is not None:
+        tensor_normalized = tensor_masked.sum(dim=dim) / normalize_constant
+    else:
+        tensor_normalized = tensor_masked.sum() / normalize_constant
+    return tensor_normalized
