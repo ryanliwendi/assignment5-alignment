@@ -44,7 +44,7 @@ def compute_entropy(logits: torch.Tensor) -> torch.Tensor:
     exp_logits = torch.exp(logits)
     normalized_logits = exp_logits / exp_logits.sum(dim=-1, keepdim=True)
     log_logits = torch.log(normalized_logits)
-    return (log_logits * normalized_logits).sum(dim=-1)
+    return -(log_logits * normalized_logits).sum(dim=-1)
 
 
 
