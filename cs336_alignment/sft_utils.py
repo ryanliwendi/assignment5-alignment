@@ -27,7 +27,7 @@ def tokenize_prompt_and_output(
     '''
     combined_str = []
     for i in range(len(prompt_strs)):
-        combined_str.append((prompt_strs[i] + output_strs[i]).strip())
+        combined_str.append((prompt_strs[i] + output_strs[i]))
     encoding = tokenizer(combined_str, padding=True, return_tensors='pt')
     input_ids = encoding['input_ids'][:, :-1]
     labels = encoding['input_ids'][:, 1::]
@@ -38,6 +38,13 @@ def tokenize_prompt_and_output(
     data = {'input_ids': input_ids, 'labels': labels, 'response_mask': response_mask}
     return data
 
+
+def compute_entropy(logits: torch.Tensor) -> torch.Tensor:
+    logits = logits - logits.max(dim=-1, keepdim=True).values
+    exp_logits = torch.exp(logits)
+    normalized_logits = exp_logits / exp_logits.sum(dim=-1, keepdim=True)
+    log_logits = torch.log(normalized_logits)
+    return log_logits * normalized_logits.sum(dim=-1)
 
 
 
