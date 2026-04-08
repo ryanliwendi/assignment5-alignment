@@ -1,4 +1,4 @@
-from transformers import PreTrainedTokenizer
+from transformers import PreTrainedTokenizer, PreTrainedModel
 import torch
 
 
@@ -47,7 +47,22 @@ def compute_entropy(logits: torch.Tensor) -> torch.Tensor:
     return -(log_logits * normalized_logits).sum(dim=-1)
 
 
-
-
+def get_response_log_probs(
+    model: PreTrainedModel,
+    input_ids: torch.Tensor,
+    labels: torch.Tensor,
+    return_token_entropy: bool=False
+) -> dict[str, torch.Tensor]:
+    logits = model(input_ids).logits
+    logits = logits - logits.max(dim=-1, keepdim=True).values
+    exp_logits = torch.exp(logits)
+    normalized_logits = exp_logits / exp_logits.sum(dim=-1, keepdim=True)
+    probs = normalized_logits.gather(-1, labels)
+    log_probs = torch.log(probs)
+    return_dict = {'log_probs': log_probs}
+    if return_token_entropy:
+        token_entropy = compute_entropy(logits)
+        return_dict['token_entropy'] = token_entropy
+    return return_dict
 
 
