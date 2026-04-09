@@ -7,18 +7,36 @@ def tokenize_prompt_and_output(
     output_strs: list[str],
     tokenizer: PreTrainedTokenizer
 ) -> dict[str, torch.Tensor]:
-    combined_str = []
-    for i in range(len(prompt_strs)):
-        combined_str.append((prompt_strs[i] + output_strs[i]))
-    encoding = tokenizer(combined_str, padding=True, return_tensors='pt')
-    input_ids = encoding['input_ids'][:, :-1]
-    labels = encoding['input_ids'][:, 1::]
+    prompt_tokens = []
+    output_tokens = []
+    concat_tokens = []
+    for prompt, output in zip(prompt_strs, output_strs):
+        tokenized_prompt = tokenizer.encode(prompt)
+        tokenized_output = tokenizer.encode(output)
+        tokenized_concat = tokenized_prompt + tokenized_output
+        prompt_tokens.append(tokenized_prompt)
+        output_tokens.append(tokenized_output)
+        concat_tokens.append(tokenized_concat)
+
+    maxlen = 0
+    for tokens in concat_tokens:
+        maxlen = max(maxlen, len(tokens))
+    for i in range(len(concat_tokens)):
+        strlen = len(concat_tokens[i])
+        concat_tokens[i] = [tokenizer.pad_token_id] * (maxlen - strlen) + concat_tokens[i]
+    input_ids = torch.tensor(concat_tokens)[:, :-1]
+    labels = torch.tensor(concat_tokens)[:, 1:]
     response_mask = torch.zeros_like(labels)
-    for i in range(len(output_strs)):
-        output_len = tokenizer(output_strs[i], return_tensors='pt')['input_ids'].shape[-1]
-        response_mask[i, -output_len::] = 1
-    data = {'input_ids': input_ids, 'labels': labels, 'response_mask': response_mask}
-    return data
+    for i in range(len(concat_tokens)):
+        output_len = len(output_tokens[i])
+        response_mask[i, maxlen - 1 - output_len:] = 1
+
+    result_dict = {
+        'input_ids': input_ids,
+        'labels': labels,
+        'response_mask': response_mask
+    }
+    return result_dict
 
 
 def compute_entropy(logits: torch.Tensor) -> torch.Tensor:
@@ -60,3 +78,13 @@ def masked_normalize(
     else:
         tensor_normalized = tensor_masked.sum() / normalize_constant
     return tensor_normalized
+
+
+def sft_microbatch_train_step(
+    policy_log_probs: torch.Tensor,
+    response_mask: torch.Tensor,
+    gradient_accumulation_steps: int,
+    normalize_constant: float = 1.0,
+) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+    return NotImplementedError
+
