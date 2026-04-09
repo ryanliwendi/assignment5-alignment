@@ -12,7 +12,7 @@ def tokenize_prompt_and_output(
     concat_tokens = []
     for prompt, output in zip(prompt_strs, output_strs):
         tokenized_prompt = tokenizer.encode(prompt)
-        tokenized_output = tokenizer.encode(output) + [tokenizer.eos_token_id]
+        tokenized_output = tokenizer.encode(output)
         tokenized_concat = tokenized_prompt + tokenized_output
         prompt_tokens.append(tokenized_prompt)
         output_tokens.append(tokenized_output)
