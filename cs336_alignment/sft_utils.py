@@ -23,13 +23,14 @@ def tokenize_prompt_and_output(
         maxlen = max(maxlen, len(tokens))
     for i in range(len(concat_tokens)):
         strlen = len(concat_tokens[i])
-        concat_tokens[i] = [tokenizer.pad_token_id] * (maxlen - strlen) + concat_tokens[i]
+        concat_tokens[i] = concat_tokens[i] + [tokenizer.pad_token_id] * (maxlen - strlen)
     input_ids = torch.tensor(concat_tokens)[:, :-1]
     labels = torch.tensor(concat_tokens)[:, 1:]
     response_mask = torch.zeros_like(labels)
     for i in range(len(concat_tokens)):
+        prompt_len = len(prompt_tokens[i])
         output_len = len(output_tokens[i])
-        response_mask[i, maxlen - 1 - output_len:] = 1
+        response_mask[:, prompt_len: prompt_len + output_len] = 1
 
     result_dict = {
         'input_ids': input_ids,
