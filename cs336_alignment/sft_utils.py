@@ -30,7 +30,7 @@ def tokenize_prompt_and_output(
     for i in range(len(concat_tokens)):
         prompt_len = len(prompt_tokens[i])
         output_len = len(output_tokens[i])
-        response_mask[:, prompt_len: prompt_len + output_len] = 1
+        response_mask[:, prompt_len - 1: prompt_len + output_len - 1] = 1
 
     result_dict = {
         'input_ids': input_ids,
